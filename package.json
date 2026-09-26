@@ -1,5 +1,5 @@
 {
-  "name": "my-sanity-project",
+  "name": "sanity-fastener-kb",
   "private": true,
   "version": "1.0.0",
   "main": "package.json",
@@ -9,12 +9,14 @@
     "deploy": "sanity deploy",
     "deploy-graphql": "sanity graphql deploy",
     "dev": "sanity dev",
-    "start": "sanity start"
+    "start": "sanity start",
+    "seed": "tsx scripts/seed.ts"
   },
   "keywords": [
     "sanity"
   ],
   "dependencies": {
+    "@sanity/client": "^7.11.1",
     "@sanity/vision": "^6.16.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -23,9 +25,12 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^7",
+    "@types/node": "^22.10.2",
     "@types/react": "^19.2.14",
+    "dotenv": "^16.4.7",
     "eslint": "^10.8.1",
     "prettier": "^3.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.8"
   },
   "prettier": {
