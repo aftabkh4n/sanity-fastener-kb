@@ -1,0 +1,198 @@
+{
+  "description": "Dimensions for DIN 933 and ISO 4017 hex head set screws, M6-M24. One entry per (standard, nominalSize).",
+  "sources": {
+    "westfield": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf",
+    "wermac": "https://wermac.org/bolts/metricBDC.html"
+  },
+  "notes": [
+    "Head height (k) values are nominal, taken from Westfield PDF Table 1 (preferred threads M6-M24 excluding M14/M18/M22) and Table 2 (non-preferred threads M14/M18/M22).",
+    "Across-flats (s) values are nominal (== max per DIN 933 spec).",
+    "The Westfield PDF lists DIN 933 M14 s = 21 mm under the DIN heading, which is actually the ISO 4017 value. Wermac lists DIN 933 M14 s = 22 mm and states that ISO 4017 differs from DIN 933 only on M10, M12, M14, M22 across flats.",
+    "Per user decision: ISO 4017 mirrors DIN 933 on head height and pitch. Only across flats differs on M10, M12, M14, M22.",
+    "Fine pitch not tabulated in either source; left null.",
+    "M22 is the only size in this range where the ISO across-flats value is larger than the DIN value."
+  ],
+  "entries": [
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M6",
+      "pitchCoarseMm": 1,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 10,
+      "headHeightMm": 4,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M6",
+      "pitchCoarseMm": 1,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 10,
+      "headHeightMm": 4,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M8",
+      "pitchCoarseMm": 1.25,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 13,
+      "headHeightMm": 5.3,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M8",
+      "pitchCoarseMm": 1.25,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 13,
+      "headHeightMm": 5.3,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M10",
+      "pitchCoarseMm": 1.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 17,
+      "headHeightMm": 6.4,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M10",
+      "pitchCoarseMm": 1.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 16,
+      "headHeightMm": 6.4,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M12",
+      "pitchCoarseMm": 1.75,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 19,
+      "headHeightMm": 7.5,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M12",
+      "pitchCoarseMm": 1.75,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 18,
+      "headHeightMm": 7.5,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M14",
+      "pitchCoarseMm": 2,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 22,
+      "headHeightMm": 8.8,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html",
+      "notes": "Westfield Fasteners' DIN 933 sheet lists 21 mm here, which is the ISO 4017 value; the original DIN 933 value is 22 mm (Wermac). Head height taken from Westfield PDF Table 2."
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M14",
+      "pitchCoarseMm": 2,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 21,
+      "headHeightMm": 8.8,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M16",
+      "pitchCoarseMm": 2,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 24,
+      "headHeightMm": 10,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M16",
+      "pitchCoarseMm": 2,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 24,
+      "headHeightMm": 10,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M18",
+      "pitchCoarseMm": 2.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 27,
+      "headHeightMm": 11.5,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M18",
+      "pitchCoarseMm": 2.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 27,
+      "headHeightMm": 11.5,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M20",
+      "pitchCoarseMm": 2.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 30,
+      "headHeightMm": 12.5,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M20",
+      "pitchCoarseMm": 2.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 30,
+      "headHeightMm": 12.5,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M22",
+      "pitchCoarseMm": 2.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 32,
+      "headHeightMm": 14,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M22",
+      "pitchCoarseMm": 2.5,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 34,
+      "headHeightMm": 14,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    },
+    {
+      "standard": "DIN 933",
+      "nominalSize": "M24",
+      "pitchCoarseMm": 3,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 36,
+      "headHeightMm": 15,
+      "sourceUrl": "https://www.westfieldfasteners.co.uk/Standards/ScrewBolt-HexHd-M-THRfull.pdf"
+    },
+    {
+      "standard": "ISO 4017",
+      "nominalSize": "M24",
+      "pitchCoarseMm": 3,
+      "pitchFineMm": null,
+      "acrossFlatsMm": 36,
+      "headHeightMm": 15,
+      "sourceUrl": "https://wermac.org/bolts/metricBDC.html"
+    }
+  ]
+}

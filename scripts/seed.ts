@@ -1,4 +1,6 @@
 import 'dotenv/config'
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {createClient} from '@sanity/client'
 
 type SanityDocumentLike = {_id: string; _type: string; [key: string]: unknown}
@@ -25,9 +27,15 @@ const propertyClassId = (grade: string) =>
 const sizeSpecId = (standardCode: string, size: string) =>
   `sizeSpec-${standardCode.toLowerCase().replace(/\s+/g, '-')}-${size.toLowerCase()}`
 
-const standards: {code: string; body: 'DIN' | 'ISO'; title: string}[] = [
+const standards: {code: string; body: 'DIN' | 'ISO'; title: string; notes?: string}[] = [
   {code: 'DIN 931', body: 'DIN', title: 'Hexagon head bolts, partially threaded'},
-  {code: 'DIN 933', body: 'DIN', title: 'Hexagon head screws, fully threaded'},
+  {
+    code: 'DIN 933',
+    body: 'DIN',
+    title: 'Hexagon head screws, fully threaded',
+    notes:
+      'M14 across-flats is a known source discrepancy: the original DIN 933 value is 22 mm (Wermac), but the Westfield Fasteners specification sheet lists 21 mm under the DIN heading, which is actually the ISO 4017 value. This dataset uses 22 mm for DIN 933 and 21 mm for ISO 4017.',
+  },
   {code: 'DIN 934', body: 'DIN', title: 'Hexagon nuts, style 1'},
   {code: 'DIN 125', body: 'DIN', title: 'Plain washers, product grade A'},
   {code: 'ISO 4014', body: 'ISO', title: 'Hexagon head bolts, product grades A and B'},
@@ -54,13 +62,101 @@ const propertyClasses: {
   {grade: 'A4-80', material: 'stainless A4'},
 ]
 
-const boltSizes = ['M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22', 'M24']
+type Entry = {
+  standard: string
+  nominalSize: string
+  pitchCoarseMm: number | null
+  pitchFineMm: number | null
+  acrossFlatsMm: number | null
+  headHeightMm: number | null
+  sourceUrl: string
+  notes?: string
+}
 
-// The four across-flats disagreements between DIN 933 and ISO 4017.
-// These are the values judges will inspect, so they are seeded directly.
-const acrossFlatsByStandard: Record<string, Record<string, number>> = {
-  'DIN 933': {M10: 17, M12: 19, M14: 22, M22: 32},
-  'ISO 4017': {M10: 16, M12: 18, M14: 21, M22: 34},
+type DataFile = {entries: Entry[]}
+
+const dataPath = resolve(process.cwd(), 'data/din933-iso4017.json')
+const data: DataFile = JSON.parse(readFileSync(dataPath, 'utf-8'))
+const entries = data.entries
+
+const boltSizes = ['M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22', 'M24']
+const seededStandards = ['DIN 933', 'ISO 4017']
+
+function keyFor(standard: string, size: string) {
+  return `${standard}::${size}`
+}
+const entryIndex = new Map<string, Entry>()
+for (const e of entries) entryIndex.set(keyFor(e.standard, e.nominalSize), e)
+
+for (const s of seededStandards) {
+  for (const size of boltSizes) {
+    if (!entryIndex.has(keyFor(s, size))) {
+      console.error(`Missing entry in JSON for ${s} ${size}`)
+      process.exit(1)
+    }
+  }
+}
+
+const ATTRIBUTES: {
+  key: 'pitchCoarseMm' | 'pitchFineMm' | 'acrossFlatsMm' | 'headHeightMm'
+  label: 'pitch' | 'across flats' | 'head height'
+  unit: string
+}[] = [
+  {key: 'pitchCoarseMm', label: 'pitch', unit: 'mm'},
+  {key: 'pitchFineMm', label: 'pitch', unit: 'mm'},
+  {key: 'acrossFlatsMm', label: 'across flats', unit: 'mm'},
+  {key: 'headHeightMm', label: 'head height', unit: 'mm'},
+]
+
+function practicalImpactFor(
+  attribute: string,
+  size: string,
+  fromValue: number,
+  toValue: number,
+  unit: string,
+) {
+  if (attribute === 'across flats') {
+    return `Different spanner needed at ${size}: ${fromValue} ${unit} for DIN 933, ${toValue} ${unit} for ISO 4017.`
+  }
+  if (attribute === 'head height') {
+    return `Head height at ${size} differs: ${fromValue} ${unit} (DIN) vs ${toValue} ${unit} (ISO).`
+  }
+  if (attribute === 'pitch') {
+    return `Thread pitch at ${size} differs: ${fromValue} ${unit} (DIN) vs ${toValue} ${unit} (ISO).`
+  }
+  return `${attribute} at ${size} differs: ${fromValue} ${unit} vs ${toValue} ${unit}.`
+}
+
+function buildDifferences() {
+  const diffs: Record<string, unknown>[] = []
+  for (const size of boltSizes) {
+    const din = entryIndex.get(keyFor('DIN 933', size))!
+    const iso = entryIndex.get(keyFor('ISO 4017', size))!
+    for (const attr of ATTRIBUTES) {
+      const from = din[attr.key]
+      const to = iso[attr.key]
+      if (from == null || to == null) continue
+      if (from === to) continue
+      const attrSlug = attr.label.replace(/\s+/g, '-')
+      const keySlug = `diff-${size.toLowerCase()}-${attrSlug}`
+      const extraNote =
+        attr.label === 'across flats' && size === 'M22'
+          ? ' Note: M22 is the only size in this range where the ISO across-flats is LARGER than the DIN value.'
+          : ''
+      diffs.push({
+        _key: keySlug,
+        _type: 'difference',
+        nominalSize: size,
+        attribute: attr.label,
+        fromValue: from,
+        toValue: to,
+        unit: attr.unit,
+        practicalImpact:
+          practicalImpactFor(attr.label, size, from as number, to as number, attr.unit) + extraNote,
+      })
+    }
+  }
+  return diffs
 }
 
 async function run() {
@@ -68,14 +164,16 @@ async function run() {
   const docs: SanityDocumentLike[] = []
 
   for (const s of standards) {
-    docs.push({
+    const doc: SanityDocumentLike = {
       _id: standardId(s.code),
       _type: 'standard',
       code: s.code,
       body: s.body,
       title: s.title,
       status: 'current',
-    })
+    }
+    if (s.notes) doc.notes = s.notes
+    docs.push(doc)
   }
 
   for (const t of fastenerTypes) {
@@ -97,10 +195,10 @@ async function run() {
     })
   }
 
-  for (const standardCode of ['DIN 933', 'ISO 4017']) {
+  for (const standardCode of seededStandards) {
     for (const size of boltSizes) {
-      const acrossFlats = acrossFlatsByStandard[standardCode]?.[size]
-      const doc: SanityDocumentLike & Record<string, unknown> = {
+      const e = entryIndex.get(keyFor(standardCode, size))!
+      const doc: SanityDocumentLike = {
         _id: sizeSpecId(standardCode, size),
         _type: 'sizeSpec',
         standard: ref(standardId(standardCode)),
@@ -108,14 +206,27 @@ async function run() {
         kind: 'bolt',
         nominalSize: size,
         verified: false,
+        sourceUrl: e.sourceUrl,
       }
-      if (typeof acrossFlats === 'number') {
-        doc.acrossFlatsMm = acrossFlats
-        doc.verified = true
-      }
+      if (e.pitchCoarseMm != null) doc.pitchCoarseMm = e.pitchCoarseMm
+      if (e.pitchFineMm != null) doc.pitchFineMm = e.pitchFineMm
+      if (e.acrossFlatsMm != null) doc.acrossFlatsMm = e.acrossFlatsMm
+      if (e.headHeightMm != null) doc.headHeightMm = e.headHeightMm
+      if (e.notes) doc.notes = e.notes
       docs.push(doc)
     }
   }
+
+  const differences = buildDifferences()
+  const affectedSizes = Array.from(new Set(differences.map((d) => d.nominalSize as string)))
+
+  const summary = [
+    'DIN 933 and ISO 4017 both cover fully threaded hexagon head screws.',
+    `In the M6-M24 range covered by this dataset, the standards diverge only on across-flats width, and only at ${affectedSizes.join(', ')}.`,
+    'Thread pitch and head height are identical.',
+    'For M10, M12 and M14 the ISO across-flats is smaller than the DIN value; for M22 the ISO across-flats is LARGER than the DIN value (32 mm DIN vs 34 mm ISO).',
+    'Parts are interchangeable in thread and load path but not in wrench size, so a DIN wrench set will not fully cover ISO 4017 stock and vice versa.',
+  ].join(' ')
 
   docs.push({
     _id: 'equivalence-din-933-iso-4017',
@@ -123,51 +234,8 @@ async function run() {
     fromSpec: ref(standardId('DIN 933')),
     toSpec: ref(standardId('ISO 4017')),
     relationship: 'near equivalent',
-    summary:
-      'DIN 933 and ISO 4017 both cover fully threaded hexagon head screws, but the across-flats width diverges on M10, M12, M14 and M22. Parts are interchangeable in the thread and load path, but not in wrench size, so a DIN wrench set will not fully cover ISO 4017 stock (and vice versa).',
-    differences: [
-      {
-        _key: 'diff-m10-af',
-        _type: 'difference',
-        nominalSize: 'M10',
-        attribute: 'across flats',
-        fromValue: 17,
-        toValue: 16,
-        unit: 'mm',
-        practicalImpact: 'Requires 17 mm spanner (DIN) vs 16 mm spanner (ISO).',
-      },
-      {
-        _key: 'diff-m12-af',
-        _type: 'difference',
-        nominalSize: 'M12',
-        attribute: 'across flats',
-        fromValue: 19,
-        toValue: 18,
-        unit: 'mm',
-        practicalImpact: 'Requires 19 mm spanner (DIN) vs 18 mm spanner (ISO).',
-      },
-      {
-        _key: 'diff-m14-af',
-        _type: 'difference',
-        nominalSize: 'M14',
-        attribute: 'across flats',
-        fromValue: 22,
-        toValue: 21,
-        unit: 'mm',
-        practicalImpact: 'Requires 22 mm spanner (DIN) vs 21 mm spanner (ISO).',
-      },
-      {
-        _key: 'diff-m22-af',
-        _type: 'difference',
-        nominalSize: 'M22',
-        attribute: 'across flats',
-        fromValue: 32,
-        toValue: 34,
-        unit: 'mm',
-        practicalImpact:
-          'DIN 933 M22 uses a 32 mm head; ISO 4017 M22 uses a larger 34 mm head. Sockets are not swappable.',
-      },
-    ],
+    summary,
+    differences,
   })
 
   console.log(`Seeding ${docs.length} documents into ${projectId}/${dataset} at ${now}`)
@@ -177,6 +245,7 @@ async function run() {
   const result = await tx.commit()
 
   console.log(`Committed transaction ${result.transactionId}. Documents upserted: ${docs.length}.`)
+  console.log(`Equivalence differences seeded: ${differences.length}`)
 }
 
 run().catch((err) => {

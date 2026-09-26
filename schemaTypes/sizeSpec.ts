@@ -128,6 +128,11 @@ export const sizeSpec = defineType({
       title: 'Source URL',
       type: 'url',
     }),
+    defineField({
+      name: 'notes',
+      title: 'Notes',
+      type: 'text',
+    }),
   ],
   preview: {
     select: {
