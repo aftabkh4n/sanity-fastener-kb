@@ -105,6 +105,7 @@ async function run() {
         _type: 'sizeSpec',
         standard: ref(standardId(standardCode)),
         fastenerType: ref(fastenerTypeId('bolt')),
+        kind: 'bolt',
         nominalSize: size,
         verified: false,
       }
