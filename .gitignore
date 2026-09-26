@@ -37,3 +37,5 @@
 # Local source-material caches (keep JSON committed)
 data/*.pdf
 data/*.txt
+data/*.pdf
+data/*.txt
