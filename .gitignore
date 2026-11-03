@@ -39,3 +39,6 @@ data/*.pdf
 data/*.txt
 data/*.pdf
 data/*.txt
+
+# Local installers / binaries
+data/*.exe
